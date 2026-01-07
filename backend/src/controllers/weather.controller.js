@@ -1,5 +1,11 @@
+import { loadCityCodes } from "../services/weather.service.js";
+
 export const getWeatherAnalytics = async (req, res) => {
+  const cityCodes = loadCityCodes();
+
   res.json({
-    message: "Weather analytics endpoint working"
+    totalCities: cityCodes.length,
+    cityCodes
   });
 };
+  
