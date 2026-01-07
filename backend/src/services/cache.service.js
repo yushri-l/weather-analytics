@@ -21,3 +21,8 @@ export const getCache = (key) => {
 export const getCacheStatus = () => {
   return Array.from(cache.keys());
 };
+
+export const clearCache = () => {
+  cache.clear();
+};
+
