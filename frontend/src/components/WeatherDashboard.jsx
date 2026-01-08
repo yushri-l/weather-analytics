@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
+const getComfortColor = (score) => {
+  if (score >= 80) return "#16a34a";
+  if (score >= 60) return "#f59e0b";
+  return "#dc2626";
+};
+
 const WeatherDashboard = () => {
   const [cities, setCities] = useState([]);
   const [source, setSource] = useState("");
@@ -18,23 +24,23 @@ const WeatherDashboard = () => {
           },
         });
 
-        const response = await fetch("http://localhost:5000/api/weather", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/weather",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        if (!response.ok) {
-          throw new Error("Unauthorized");
-        }
+        if (!response.ok) throw new Error("Unauthorized");
 
         const data = await response.json();
-
         setCities(data.rankedCities || []);
         setSource(data.source);
-        setLoading(false);
       } catch (err) {
-        setError("Unauthorized or failed to load weather data");
+        setError("Unable to load weather analytics");
+      } finally {
         setLoading(false);
       }
     };
@@ -42,29 +48,69 @@ const WeatherDashboard = () => {
     loadWeather();
   }, [getAccessTokenSilently]);
 
-  if (loading) return <p>Loading weather data...</p>;
+  if (loading) return <p>Loading weather analytics…</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div>
-      <p><strong>Data source:</strong> {source}</p>
+      <p style={{ marginBottom: "20px", color: "var(--muted-text)" }}>
+        Data source: <strong>{source}</strong>
+      </p>
 
-      {cities.map((city, index) => (
-        <div
-          key={city.city}
-          style={{
-            border: "1px solid #ccc",
-            padding: "12px",
-            marginBottom: "10px",
-            borderRadius: "6px",
-          }}
-        >
-          <strong>#{index + 1} {city.city}</strong>
-          <p>{city.description}</p>
-          <p>Temperature: {city.temperature} °C</p>
-          <p>Comfort Index: {city.comfortIndex}</p>
-        </div>
-      ))}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: "16px",
+        }}
+      >
+        {cities.map((city, index) => (
+          <div
+            key={city.city}
+            style={{
+              backgroundColor: "var(--card-bg)",
+              color: "var(--text-color)",
+              borderRadius: "10px",
+              padding: "16px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "8px",
+              }}
+            >
+              <strong>
+                #{index + 1} {city.city}
+              </strong>
+
+              <span
+                style={{
+                  fontSize: "12px",
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  backgroundColor: getComfortColor(city.comfortIndex),
+                  color: "white",
+                }}
+              >
+                {city.comfortIndex}
+              </span>
+            </div>
+
+            <p style={{ margin: "6px 0", color: "var(--muted-text)" }}>
+              {city.description}
+            </p>
+
+            <p style={{ margin: "6px 0" }}>
+              🌡 Temperature:{" "}
+              <strong>{city.temperature} °C</strong>
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
