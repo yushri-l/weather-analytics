@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { getWeatherAnalytics } from "../controllers/weather.controller.js";
 import { getCacheStatus, clearCache } from "../services/cache.service.js";
+import authMiddleware from "../middleware/auth.middleware.js";
+
 
 const router = Router();
 
-router.get("/", getWeatherAnalytics);
+router.get("/", authMiddleware, getWeatherAnalytics);
 
 router.get("/cache/status", (req, res) => {
   res.json({ cachedKeys: getCacheStatus() });
