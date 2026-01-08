@@ -11,6 +11,6 @@ const authMiddleware = expressjwt({
   audience: process.env.AUTH0_AUDIENCE,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
-});
+}).unless({ path: [] });
 
 export default authMiddleware;

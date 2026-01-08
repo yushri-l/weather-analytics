@@ -13,8 +13,13 @@ app.use(express.json());
 app.use("/api/weather", weatherRoutes);
 
 app.use((err, req, res, next) => {
+  console.error("AUTH ERROR:", err);
+
   if (err.name === "UnauthorizedError") {
-    return res.status(401).json({ message: "Invalid or missing token" });
+    return res.status(401).json({ 
+      message: "Invalid or missing token",
+       error: err.message,
+     });
   }
   next(err);
 });
