@@ -15,6 +15,8 @@ function App() {
     localStorage.getItem("theme") || "light"
   );
 
+  const [source, setSource] = useState("");
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -103,25 +105,66 @@ function App() {
      AUTHENTICATED VIEW
      ========================= */
   return (
-    <div className="container">
-      <header
+    <div>
+      {/* NAV BAR */}
+      <nav
         style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          backgroundColor: "var(--card-bg)",
+          borderBottom: "1px solid var(--muted-text)",
+          padding: "14px 24px",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "32px",
+          justifyContent: "space-between",
         }}
       >
-        <div>
-          <h1>Live Weather</h1>
-          <p style={{ color: "var(--muted-text)", marginTop: "4px" }}>
+        {/* Left: Data source */}
+        <div style={{ fontSize: "13px", color: "var(--muted-text)" }}>
+          {source && (
+            <>
+              Data source: <strong>{source}</strong>
+            </>
+          )}
+        </div>
+
+        {/* Center: Title */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            textAlign: "center",
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: "18px" }}>
+            Live Weather
+          </h1>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "13px",
+              color: "var(--muted-text)",
+            }}
+          >
             How Comfortable Is Your City?
           </p>
         </div>
 
+        {/* Right: Actions */}
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <button onClick={toggleTheme}>
-            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          <button
+            onClick={toggleTheme}
+            style={{
+              backgroundColor: "transparent",
+              border: "1px solid var(--muted-text)",
+              borderRadius: "999px",
+              padding: "6px 10px",
+              fontSize: "14px",
+            }}
+          >
+            {theme === "light" ? "🌙" : "☀️"}
           </button>
 
           <span style={{ fontSize: "14px" }}>
@@ -138,9 +181,12 @@ function App() {
             Log Out
           </button>
         </div>
-      </header>
+      </nav>
 
-      <WeatherDashboard />
+      {/* CONTENT */}
+      <div className="container" style={{ paddingTop: "24px" }}>
+        <WeatherDashboard onSourceUpdate={setSource} />
+      </div>
     </div>
   );
 }

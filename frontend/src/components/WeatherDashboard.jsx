@@ -2,17 +2,15 @@ import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const getComfortColor = (score) => {
-  if (score >= 85) return "#15803d";   // medium green
-  if (score >= 70) return "#4ade80";   // light green
-  if (score >= 55) return "#fca5a5";   // light red
-  if (score >= 40) return "#ef4444";   // medium red
-  return "#7f1d1d";                    // dark red
+  if (score >= 85) return "#15803d";
+  if (score >= 70) return "#4ade80";
+  if (score >= 55) return "#fca5a5";
+  if (score >= 40) return "#ef4444";
+  return "#7f1d1d";
 };
 
-
-const WeatherDashboard = () => {
+const WeatherDashboard = ({ onSourceUpdate }) => {
   const [cities, setCities] = useState([]);
-  const [source, setSource] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -27,21 +25,18 @@ const WeatherDashboard = () => {
           },
         });
 
-        const response = await fetch(
-          "http://localhost:5000/api/weather",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/weather", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) throw new Error("Unauthorized");
 
         const data = await response.json();
         setCities(data.rankedCities || []);
-        setSource(data.source);
-      } catch (err) {
+        onSourceUpdate?.(data.source);
+      } catch {
         setError("Unable to load weather analytics");
       } finally {
         setLoading(false);
@@ -49,71 +44,80 @@ const WeatherDashboard = () => {
     };
 
     loadWeather();
-  }, [getAccessTokenSilently]);
+  }, [getAccessTokenSilently, onSourceUpdate]);
 
   if (loading) return <p>Loading weather analytics…</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <p style={{ marginBottom: "20px", color: "var(--muted-text)" }}>
-        Data source: <strong>{source}</strong>
-      </p>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-          gap: "16px",
-        }}
-      >
-        {cities.map((city, index) => (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",   // center cards horizontally
+        gap: "10px",
+      }}
+    >
+      {cities.map((city, index) => (
+        <div
+          key={city.city}
+          style={{
+            width: "100%",
+            maxWidth: "760px",   // 🔑 controls horizontal length
+            backgroundColor: "var(--card-bg)",
+            color: "var(--text-color)",
+            borderRadius: "8px",
+            padding: "10px 14px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          {/* Single compact row */}
           <div
-            key={city.city}
             style={{
-              backgroundColor: "var(--card-bg)",
-              color: "var(--text-color)",
-              borderRadius: "10px",
-              padding: "16px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "8px",
-              }}
-            >
-              <strong>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <strong style={{ fontSize: "14px" }}>
                 #{index + 1} {city.city}
               </strong>
 
-              <span
-                style={{
-                  fontSize: "12px",
-                  padding: "4px 10px",
-                  borderRadius: "999px",
-                  backgroundColor: getComfortColor(city.comfortIndex),
-                  color: "white",
-                }}
-              >
-                {city.comfortIndex}
+              <span style={{ fontSize: "13px", color: "var(--muted-text)" }}>
+                🌡 {city.temperature} °C
               </span>
             </div>
 
-            <p style={{ margin: "6px 0", color: "var(--muted-text)" }}>
-              {city.description}
-            </p>
-
-            <p style={{ margin: "6px 0" }}>
-              🌡 Temperature:{" "}
-              <strong>{city.temperature} °C</strong>
-            </p>
+            <span
+              style={{
+                padding: "3px 9px",
+                borderRadius: "999px",
+                backgroundColor: getComfortColor(city.comfortIndex),
+                color: "white",
+                fontSize: "12px",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {city.comfortIndex}
+            </span>
           </div>
-        ))}
-      </div>
+
+          {city.description && (
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--muted-text)",
+                marginTop: "4px",
+              }}
+            >
+              {city.description}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
