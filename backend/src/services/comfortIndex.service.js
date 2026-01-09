@@ -6,7 +6,6 @@ export const calculateComfortIndex = (weather) => {
   const tempScore = Math.max(0, 100 - Math.abs(temp - 22) * 3);
   const humidityScore = Math.max(0, 100 - Math.abs(humidity - 50) * 2);
   const windScore = Math.max(0, 100 - Math.abs(wind - 3) * 10);
-  
 
   const comfortIndex =
     tempScore * 0.45 +
