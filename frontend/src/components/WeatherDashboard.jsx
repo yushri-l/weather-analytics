@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const getComfortColor = (score) => {
-  if (score >= 80) return "#16a34a";
-  if (score >= 60) return "#f59e0b";
-  return "#dc2626";
+  if (score >= 85) return "#15803d";   // medium green
+  if (score >= 70) return "#4ade80";   // light green
+  if (score >= 55) return "#fca5a5";   // light red
+  if (score >= 40) return "#ef4444";   // medium red
+  return "#7f1d1d";                    // dark red
 };
+
 
 const WeatherDashboard = () => {
   const [cities, setCities] = useState([]);
