@@ -1,234 +1,139 @@
-🌦️ Weather Comfort Analytics Application
+https://github.com/user-attachments/assets/2ad3161c-819d-4308-800d-375d42f1bab2
 
-A full-stack weather analytics application that retrieves live weather data, computes a custom Comfort Index, ranks cities based on comfort, and displays the results on a responsive dashboard.
-The system includes server-side caching and a clean separation between frontend and backend.
+## Weather Comfort Analytics Application
+ 
+A secure, full-stack weather analytics application that retrieves live weather data, computes a custom Comfort Index, ranks cities by comfort level, and presents insights through a responsive dashboard with authentication, and caching.
+---
 
-📌 Features
+## Features
 
-Fetches live weather data from OpenWeatherMap API
+- Weather Analytics
+- Data processing using a custom Comfort Index
+- Caching
+- Authentication & Authorization
+- Responsive UI
 
-Computes a custom Comfort Index (0–100) on the backend
+## Tech Stack
 
-Ranks cities from most comfortable to least comfortable
+- Express.js
+- React
+- Node.js
 
-Server-side caching with 5-minute TTL
+## Setup Instructions
 
-Debug endpoints to inspect cache state
+1. Clone the repository
+```git clone <repository-url>```
 
-Responsive React dashboard
-
-Clear separation of concerns (services, controllers, routes)
-
-🧱 Tech Stack
-Backend
-
-Node.js (v20)
-
-Express.js
-
-OpenWeatherMap API
-
-In-memory cache (TTL-based)
-
-ES Modules
-
-Frontend
-
-React (Vite)
-
-Fetch API
-
-Responsive UI (card-based layout)
-
-📂 Project Structure
-weather-analytics/
-├── backend/
-│   ├── src/
-│   │   ├── app.js
-│   │   ├── server.js
-│   │   ├── routes/
-│   │   ├── controllers/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   └── data/cities.json
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-│
-└── README.md
-
-⚙️ Setup Instructions
-1️⃣ Clone the repository
-git clone <repository-url>
-cd weather-analytics
-
-2️⃣ Backend setup
-cd backend
-npm install
-
+2. Backend setup
+```cd backend```
+```npm install```
 
 Create a .env file:
-
-OPENWEATHER_API_KEY=your_api_key_here
 PORT=5000
+OPENWEATHER_API_KEY=your_openweather_api_key
+AUT H0_DOMAIN=your-auth0-domain
+AUTH0_AUDIENCE=your-auth0-audience
 
 
 Start backend:
-
-npm run dev
-
+```npm run dev```
 
 Backend runs on:
-
 http://localhost:5000
 
-3️⃣ Frontend setup
-cd frontend
-npm install
-npm run dev
-
+3. Frontend setup
+```cd frontend```
+```npm install```
+```npm run dev```
 
 Frontend runs on:
-
 http://localhost:5173
+---
 
-🌍 API Endpoints
-Get weather analytics
-GET /api/weather
-
-
-Response:
-
-{
-  "source": "api | cache",
-  "totalCities": 8,
-  "rankedCities": [
-    {
-      "city": "Paris",
-      "description": "clear sky",
-      "temperature": 22.4,
-      "comfortIndex": 91
-    }
-  ]
-}
-
-Cache status (debug)
-GET /api/weather/cache/status
-
-Clear cache (debug)
-GET /api/weather/cache/clear
-
-🧮 Comfort Index Formula
-
+## Comfort Index Formula
 The Comfort Index is a custom metric designed to quantify how comfortable a city’s weather feels to a human.
 
 Parameters used
+- Temperature (°C)
+- Humidity (%)
+- Wind speed (m/s)
 
-Temperature (°C)
+Optimal values
+- Temperature	22°C
+- Humidity	50%
+- Wind Speed	3 m/s
 
-Humidity (%)
+first the parameters scores are calculated which tells how comfortable is the parameter on a scale from 0 to 100 by parameter_score = 100 - |current value - optimal value| * penalty multiplier. 
+|current value - optimal value| tell how far from the optimal point is the current value. This optimal value is set to 22.0 C, 50%, 3 m/s for temperature, humidity and wind speed respectively, which is the average between the recommended temperature, humidity and wind speed in the summer and winter.
+penalty multiplier tells how quickly should comfort drop when we move away from the optimal value.
 
-Wind speed (m/s)
+then comfort index calculated using, 
 
-Cloudiness (%)
-
-Ideal reference values
-Parameter	Ideal Value
-Temperature	22°C
-Humidity	50%
-Wind Speed	3 m/s
-Cloudiness	40%
-Scoring & Weights
-
-Each parameter is normalized to a 0–100 score based on deviation from its ideal value.
-
-Parameter	Weight
-Temperature	40%
-Humidity	30%
-Wind Speed	20%
-Cloudiness	10%
-Final formula
 Comfort Index =
-(TempScore × 0.4) +
-(HumidityScore × 0.3) +
-(WindScore × 0.2) +
-(CloudScore × 0.1)
-
+(TempScore × 0.45) +
+(HumidityScore × 0.33) +
+(WindScore × 0.22) 
 
 The final score is rounded and constrained between 0 and 100.
 
-🧠 Reasoning Behind the Formula
+variable weights
+- Each parameter is normalized to a 0–100 score based on deviation from its ideal value.
 
-Temperature has the highest impact on human comfort
+- Temperature	45%
+- Humidity 33%
+- Wind Speed 22%
 
-Humidity significantly affects perceived heat
+## Reason for variable weights
 
-Wind provides natural cooling
+- Temperature has the strongest impact on perceived comfort - 45%
+- Humidity significantly affects perceived heat - 33%
+- Wind provides natural cooling - 22%
 
-Cloudiness affects sun exposure and glare
+The weighting prioritizes real-world human comfort.
 
-The weighting prioritizes real-world human comfort while keeping the formula simple, explainable, and testable.
-
-🗄️ Cache Design
+## Cache Design
 Strategy
-
-In-memory TTL cache using JavaScript Map
-
-Two layers of caching:
-
-Raw weather API responses (per city)
-
-Processed & ranked output
+- In-memory TTL cache using JavaScript Map
+- Two independent cache layers:
+1. Raw OpenWeather API responses (per city)
+2. Final processed & ranked analytics output
 
 TTL
-
-5 minutes (as required)
+- 5 minutes 
 
 Benefits
+- Reduces external API calls
+- Improves response time
+- Clear cache state visibility via debug endpoints
 
-Reduces external API calls
+## Testing
+Unit tests implemented for the Comfort Index calculation
 
-Improves response time
+Tests cover:
+- Ideal conditions
+- Hot & cold extremes
+- High wind penalties
+- Boundary values (0–100)
 
-Clear cache state visibility via debug endpoints
+Run tests:
+- npm test
 
-⚖️ Trade-offs Considered
+## Trade-offs 
+- In-memory cache chosen for simplicity 
+- Cache resets on server restart 
+- Sorting handled on backend for consistency and performance
 
-In-memory cache chosen for simplicity (no Redis dependency)
+## Limitations
+- Cache does not persist across restarts
+- Weather data is real-time only
+- Limited to configured city list
 
-Cache resets on server restart (acceptable for assignment scope)
+## Extra Features Implemented
+- Dark mode
+- Unit tests
+- Sorted analytics output
 
-StrictMode disabled in frontend dev to avoid misleading double API calls
-
-🚧 Known Limitations
-
-In-memory cache does not persist across restarts
-
-Limited city count based on provided dataset
-
-No authentication (implemented in Part 2)
-
-✨ Bonus Features Implemented
-
-Responsive UI
-
-Backend cache debug endpoints
-
-Clear API vs cache source visibility
-
-Clean service-oriented backend design
-
-🧑‍💻 Author Notes
-
+## Author Notes
 All logic, calculations, and architecture decisions were implemented with clarity, scalability, and explainability in mind.
-The project is structured to support easy extension (authentication, persistent caching, analytics visualization).
+The architecture supports easy extension (persistent caching, analytics charts, historical trends).
 
-✅ Status
-
-✔ Part 1 — Weather Analytics: Completed
-⬜ Part 2 — Authentication & Authorization: Pending
