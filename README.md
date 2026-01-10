@@ -3,7 +3,7 @@ https://github.com/user-attachments/assets/2ad3161c-819d-4308-800d-375d42f1bab2
 ## Weather Comfort Analytics Application
  
 A secure, full-stack weather analytics application that retrieves live weather data, computes a custom Comfort Index, ranks cities by comfort level, and presents insights through a responsive dashboard with authentication, and caching.
----
+
 
 ## Features
 
