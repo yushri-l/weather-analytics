@@ -48,7 +48,7 @@ http://localhost:5000
 
 Frontend runs on:
 http://localhost:5173
----
+
 
 ## Comfort Index Formula
 The Comfort Index is a custom metric designed to quantify how comfortable a city’s weather feels to a human.
